@@ -1,6 +1,6 @@
 #include "RobotBase.h"
 #include <vector>
-#include <iostream>
+//#include <iostream>
 #include <algorithm> // For std::find_if
 
 class Robot_Ratboy : public RobotBase 
