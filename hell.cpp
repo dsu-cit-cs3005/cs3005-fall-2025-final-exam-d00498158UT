@@ -40,70 +40,16 @@ bool arena::loadConfig() {
   return true;
 };
 
-// void arena::validateSettings() {
-//   if (!arena::loadConfig()) {
-//     while (
-//         (arena::getHeight() * arena::getWidth()) +
-//             ((arena::getHeight() * static_cast<int>(arena::getWidth())) / 5)
-//             <=
-//         arena::getBots()) {
-//       arena::setArena("width", getWidth() + 1);
-//       arena::setArena("height", getWidth() + 1);
-//       return;
-//     }
-//   }
-//   while ((arena::getHeight() * arena::getWidth()) +
-//              ((arena::getHeight() * static_cast<int>(arena::getWidth())) / 5)
-//              <=
-//          arena::getBots()) {
-//     arena::setArena("width", getWidth() + 1);
-//     arena::setArena("height", getWidth() + 1);
-//   }
-//   if (arena::getHeight() * arena::getWidth() < 100) {
-//     std::cerr << "Warning: Arena size too small. Setting adjusting...";
-//     if (arena::getHeight() < 10) {
-//       arena::setArena("height", 10);
-//     }
-//     if (arena::getWidth() < 10) {
-//       arena::setArena("width", 10);
-//     }
-//     while (
-//         (arena::getHeight() * arena::getWidth()) +
-//             ((arena::getHeight() * static_cast<int>(arena::getWidth())) / 5)
-//             <=
-//         arena::getBots()) {
-//       arena::setArena("width", getWidth() + 1);
-//       arena::setArena("height", getWidth() + 1);
-//     }
-//   }
-//   while (arena::getMounds() + arena::getPits() + arena::getFlamers() +
-//              arena::getBots() >=
-//          arena::getHeight() * arena::getWidth()) {
-//     std::cerr << "Warning: Too many obstacles for Arena, reducing...";
-//     if (arena::getMounds() <= 1) {
-//       break;
-//     } else {
-//       setArena("mounds", arena::getMounds() - 1);
-//     }
-//     if (arena::getPits() <= 1) {
-//       break;
-//     } else {
-//       setArena("pits", arena::getPits() - 1);
-//     }
-//     if (arena::getFlamers() <= 1) {
-//       break;
-//     } else {
-//       setArena("flamers", arena::getPits() - 1);
-//     }
-//   }
-// }
 void arena::send2Hell() {
   srand(time(0));
   int boardsize = getHeight() * getWidth();
   // init obstacle board vector, fill with obstacles
-  std::vector<std::string> _arena(boardsize);
+  std::vector<std::string> _arena;
+  _arena.resize(boardsize);
   fill(_arena.begin(), _arena.end(), _ochars[0]);
-  std::vector<std::string> _participants(boardsize);
+  std::vector<std::string> _participants;
+  _participants.resize(boardsize);
+  fill(_participants.begin(), _participants.end(), _ochars[0] );
   _radar.resize(boardsize);
   for (int p = getPits(); p > 0; p--) {
     int wp = rand() % getWidth();
@@ -126,7 +72,6 @@ void arena::send2Hell() {
     _arena.at(ff) = _ochars[3];
     _radar.at(ff) = {'F', wf, hf};
   }
-  // init robot board, fill with robots. Max 14 participants for now
   int b;
   if (_robots.size() > 14) {
     b = 14;
@@ -140,7 +85,7 @@ void arena::send2Hell() {
     if (_arena.at(posit) == _ochars[0]) {
       _participants.at(posit) = _rchars[b];
       _radar.at(posit) = {'R', wposit, hposit};
-      _robots.at(b).move_to(wposit, hposit);
+      _robots.at(b)->move_to(wposit, hposit);
       b--;
     }
   }
@@ -165,12 +110,17 @@ void arena::showCarnage() {
 
 void arena::done() {
   int battle = 0;
-  auto check = [&](auto g) {
-    if (g.get_health() > 0) {
+  for (auto b : _robots) {
+    if(b->get_health() > 0) {
       battle++;
     }
-  };
-  std::for_each(_robots.begin(), _robots.end(), check);
+  }
+  //auto check = [&](auto g) {
+  //  if (g.get_health() > 0) {
+  //    battle++;
+  //  }
+  //};
+  //std::for_each(_robots.begin(), _robots.end(), check);
   if (battle == 1) {
     _end = true;
   } else {
@@ -208,18 +158,21 @@ std::vector<RadarObj> arena::radarScan(RobotBase *robot) {
       results.push_back(_radar.at(current_row - 1 * x));
       results.push_back(_radar.at(current_row + 1 * x));
     }
+    break;
   case 5:
     for (int y = current_row + 1; y < getHeight(); ++y) {
       results.push_back(_radar.at(current_col * y));
       results.push_back(_radar.at(current_col - 1 * y));
       results.push_back(_radar.at(current_col + 1 * y));
     }
+    break;
   case 7:
     for (int x = current_col - 1; x > 0; --x) {
       results.push_back(_radar.at(current_row * x));
       results.push_back(_radar.at(current_row - 1 * x));
       results.push_back(_radar.at(current_row + 1 * x));
     }
+    break;
   }
   return results;
 }
@@ -227,10 +180,10 @@ std::vector<RadarObj> arena::radarScan(RobotBase *robot) {
 void arena::botAttack(RobotBase *robot) {
   int shot_row, shot_col, current_row, current_col;
   if (robot->get_shot_location(shot_row, shot_col)) {
-    (void) shot_row;
-    (void) shot_col;
-    (void) current_row;
-    (void) current_col;
+    (void)shot_row;
+    (void)shot_col;
+    (void)current_row;
+    (void)current_col;
     // is shot_row and shot_col valid given the weapon?
     // if so, deal damage to robot at index. If not, do nothing
   }
@@ -259,6 +212,7 @@ void arena::botMove(RobotBase *robot) {
         robot->reduce_armor(1);
       }
     }
+    break;
   case 3:
     for (int m = current_col; m > distance; ++m) {
       if (_arena.at(current_col * m) == _ochars[0]) {
@@ -276,6 +230,7 @@ void arena::botMove(RobotBase *robot) {
         robot->reduce_armor(1);
       }
     }
+    break;
   case 5:
     for (int m = current_row; m > distance; ++m) {
       if (_arena.at(current_row * m) == _ochars[0]) {
@@ -293,6 +248,7 @@ void arena::botMove(RobotBase *robot) {
         robot->reduce_armor(1);
       }
     }
+    break;
   case 7:
     for (int m = current_col; m > distance; --m) {
       if (_arena.at(current_col * m) == _ochars[0]) {
@@ -310,23 +266,28 @@ void arena::botMove(RobotBase *robot) {
         robot->reduce_armor(1);
       }
     }
+    break;
   }
 }
 
-  int arena::mainLoop() {
-    while (!_end) {
-      RadarObj radarobj;
-      showCarnage();
-      // Step 1: Radar direction and obj construction
-      std::for_each(_robots.begin(), _robots.end(),
-                    [&](RobotBase &robot) { radarScan(&robot); });
-      // Step 2: Handle attack and inflict damage
-      std::for_each(_robots.begin(), _robots.end(),
-                    [&](RobotBase &robot) { botAttack(&robot); });
-      // Step 3: Handle robot movement
-      std::for_each(_robots.begin(), _robots.end(),
-                    [&](RobotBase &robot) { botMove(&robot); });
-      done();
+int arena::mainLoop() {
+  while (!_end) {
+    RadarObj radarobj;
+    showCarnage();
+    for (auto a : _robots) {
+      radarScan(a);
     }
-  return 0;
+//    // Step 1: Radar direction and obj construction
+//    std::for_each(_robots.begin(), _robots.end(),
+//                  [&](RobotBase *robot) { radarScan(robot); });
+//    // Step 2: Handle attack and inflict damage
+//    std::for_each(_robots.begin(), _robots.end(),
+//                  [&](RobotBase *robot) { botAttack(robot); });
+//    // Step 3: Handle robot movement
+//    std::for_each(_robots.begin(), _robots.end(),
+//                  [&](RobotBase *robot) { botMove(robot); });
+    next();
+    done();
   }
+  return 0;
+}
