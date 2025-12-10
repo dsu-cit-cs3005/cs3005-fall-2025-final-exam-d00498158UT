@@ -51,13 +51,8 @@ int main() {
     }
   }
 
-  // Load+validate settings for arena
-  // hell.arena::validateSettings();
   // Load robots
-  void *handle;
-
-  // hell.arena::testRobots(robot);
-  //  Apply settings for arena and add Robots w/random marks
+  //void *handle;
   hell.arena::send2Hell();
   // Begin/end
   return hell.arena::mainLoop();

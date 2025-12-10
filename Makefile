@@ -12,10 +12,10 @@ test_robot: test_robot.cpp RobotBase.o
 	$(CXX) $(CXXFLAGS) test_robot.cpp RobotBase.o -ldl -o test_robot
 
 hell.o: hell.cpp hell.h RobotBase.o
-	$(CXX) $(CXXFLAGS) -c hell.cpp 
+	$(CXX) $(CXXFLAGS) -c -g hell.cpp 
 
 RobotWarz.o: hell.o
-	$(CXX) $(CXXFLAGS) -c RobotWarz.cpp
+	$(CXX) $(CXXFLAGS) -c -g RobotWarz.cpp
 
 RobotWarz: RobotWarz.o hell.o
 	$(CXX) $(CXXFLAGS) -g RobotWarz.o hell.o RobotBase.o -o RobotWarz

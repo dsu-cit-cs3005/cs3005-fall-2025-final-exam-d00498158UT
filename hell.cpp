@@ -72,13 +72,7 @@ void arena::send2Hell() {
     _arena.at(ff) = _ochars[3];
     _radar.at(ff) = {'F', wf, hf};
   }
-  int b;
-  if (_robots.size() > 14) {
-    b = 14;
-  } else {
-    b = _robots.size();
-  }
-  while (b > 0) {
+  for (int b = _robots.size(); b > 0; b--) {
     int wposit = rand() % getWidth();
     int hposit = rand() % getHeight();
     int posit = wposit * hposit;
@@ -86,7 +80,6 @@ void arena::send2Hell() {
       _participants.at(posit) = _rchars[b];
       _radar.at(posit) = {'R', wposit, hposit};
       _robots.at(b)->move_to(wposit, hposit);
-      b--;
     }
   }
 }
@@ -274,18 +267,15 @@ int arena::mainLoop() {
   while (!_end) {
     RadarObj radarobj;
     showCarnage();
-    for (auto a : _robots) {
-      radarScan(a);
-    }
-//    // Step 1: Radar direction and obj construction
-//    std::for_each(_robots.begin(), _robots.end(),
-//                  [&](RobotBase *robot) { radarScan(robot); });
-//    // Step 2: Handle attack and inflict damage
-//    std::for_each(_robots.begin(), _robots.end(),
-//                  [&](RobotBase *robot) { botAttack(robot); });
-//    // Step 3: Handle robot movement
-//    std::for_each(_robots.begin(), _robots.end(),
-//                  [&](RobotBase *robot) { botMove(robot); });
+    // Step 1: Radar direction and obj construction
+    std::for_each(_robots.begin(), _robots.end(),
+                  [&](RobotBase *robot) { radarScan(robot); });
+    // Step 2: Handle attack and inflict damage
+    std::for_each(_robots.begin(), _robots.end(),
+                  [&](RobotBase *robot) { botAttack(robot); });
+    // Step 3: Handle robot movement
+    std::for_each(_robots.begin(), _robots.end(),
+                  [&](RobotBase *robot) { botMove(robot); });
     next();
     done();
   }
