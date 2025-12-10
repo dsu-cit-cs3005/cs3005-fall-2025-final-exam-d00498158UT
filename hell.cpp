@@ -49,8 +49,9 @@ void arena::send2Hell() {
   fill(_arena.begin(), _arena.end(), _ochars[0]);
   std::vector<std::string> _participants;
   _participants.resize(boardsize);
-  fill(_participants.begin(), _participants.end(), _ochars[0] );
+  fill(_participants.begin(), _participants.end(), _ochars[0]);
   _radar.resize(boardsize);
+  //std::cout << "vectors set..." << std::endl;
   for (int p = getPits(); p > 0; p--) {
     int wp = rand() % getWidth();
     int hp = rand() % getHeight();
@@ -58,6 +59,7 @@ void arena::send2Hell() {
     _arena.at(pp) = _ochars[1];
     _radar.at(pp) = {'P', wp, hp};
   }
+  //std::cout << "pits set..." << std::endl;
   for (int m = getMounds(); m > 0; m--) {
     int wm = rand() % getWidth();
     int hm = rand() % getHeight();
@@ -65,6 +67,7 @@ void arena::send2Hell() {
     _arena.at(mm) = _ochars[2];
     _radar.at(mm) = {'M', wm, hm};
   }
+  //std::cout << "mounds set..." << std::endl;
   for (int f = getFlamers(); f > 0; f--) {
     int wf = rand() % getWidth();
     int hf = rand() % getHeight();
@@ -72,16 +75,21 @@ void arena::send2Hell() {
     _arena.at(ff) = _ochars[3];
     _radar.at(ff) = {'F', wf, hf};
   }
+  //std::cout << "flamers set" << std::endl;
   for (int b = _robots.size(); b > 0; b--) {
-    int wposit = rand() % getWidth();
-    int hposit = rand() % getHeight();
+    int wposit = rand() % getWidth() + 1;
+    std::cout << wposit << " " << getWidth() << std::endl;
+    int hposit = rand() % getHeight() + 1;
+    std::cout << hposit << " " << getHeight() << std::endl;
     int posit = wposit * hposit;
+    std::cout << posit << std::endl;
     if (_arena.at(posit) == _ochars[0]) {
       _participants.at(posit) = _rchars[b];
       _radar.at(posit) = {'R', wposit, hposit};
       _robots.at(b)->move_to(wposit, hposit);
     }
   }
+  //std::cout << "bots set" << std::endl;
 }
 
 void arena::showCarnage() {
@@ -104,16 +112,16 @@ void arena::showCarnage() {
 void arena::done() {
   int battle = 0;
   for (auto b : _robots) {
-    if(b->get_health() > 0) {
+    if (b->get_health() > 0) {
       battle++;
     }
   }
-  //auto check = [&](auto g) {
-  //  if (g.get_health() > 0) {
-  //    battle++;
-  //  }
-  //};
-  //std::for_each(_robots.begin(), _robots.end(), check);
+  // auto check = [&](auto g) {
+  //   if (g.get_health() > 0) {
+  //     battle++;
+  //   }
+  // };
+  // std::for_each(_robots.begin(), _robots.end(), check);
   if (battle == 1) {
     _end = true;
   } else {

@@ -46,6 +46,7 @@ int main() {
       // then add this robot to a vector of robots. set it up how you like...
       RobotBase *robot = create_robot();
       if (robot) {
+      //std::cout << "calling arena::addRobot(*robot)" << std::endl;
       hell.arena::addRobot(*robot);
       }
     }
