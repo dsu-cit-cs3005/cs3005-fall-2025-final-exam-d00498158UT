@@ -15,7 +15,7 @@ private:
   // Robot vector board vector
   std::vector<std::string> _participants;
   // Main vector for Robot data
-  std::vector<RobotBase> _robots;
+  std::vector<RobotBase*> _robots;
   // Vectors of unique chars for Robots, Obstacles, etc.
   // Robots:
   std::vector<std::string> _rchars = {"🟥", "🟧", "🟨", "🟩", "🟦", "🟪", "🟫",
@@ -30,11 +30,12 @@ private:
   // height, width, mounds, pits, flamers, rounds
   std::map<std::string, int> _arenasettings;
   // Current round number
-  int _round;
+  int _round = 1;
   // Winner?
   bool _end = false;
 
 public:
+
   // Default constructor
   // arena() = default;
   // Overloaded constructor
@@ -66,7 +67,7 @@ public:
   // void validateSettings();
 
   // Add assembled robots to robots vector
-  void addRobot(RobotBase *robot) { _robots.push_back(*robot); }
+  void addRobot(RobotBase& robot) { _robots.push_back(&robot); }
 
   // Test Robots (taken from test_robot)
   // void testRobots(RobotBase *robot);
@@ -77,6 +78,9 @@ public:
 
   // Print/show the arena
   void showCarnage();
+
+  // Next round
+  void next() { _round++; }
 
   // The winner is?
   void done();
